@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Edición y Emisión de Carnets - GMC Alimentos</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-logo-badge">GMC</div>
+      <div class="header-titles">
+        <h1>Sistema de Emisión de Carnets</h1>
+        <p>GMC Alimentos S.A.S. - Resolución 2674 de 2013</p>
+      </div>
+    </div>
+    <div class="header-status">
+      <span class="status-dot"></span>
+      <span>Plantilla Oficial Lista (100% Offline)</span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    <!-- Left Column: Form Controls -->
+    <div class="panel-card">
+      <nav class="tabs-nav">
+        <button type="button" class="tab-btn active" data-tab="tab-individual">👤 Emisión Individual</button>
+        <button type="button" class="tab-btn" data-tab="tab-lotes">👥 Emisión por Lotes</button>
+        <button type="button" class="tab-btn" data-tab="tab-historial">📜 Historial</button>
+      </nav>
+
+      <!-- TAB 1: Emisión Individual -->
+      <section id="tab-individual" class="tab-pane active">
+        <!-- Consecutivo Box -->
+        <div class="consecutivo-box">
+          <label for="consecutivo"><strong>Número de Orden Consecutivo:</strong></label>
+          <div class="input-with-action">
+            <input type="text" id="consecutivo" placeholder="000125" maxlength="10" />
+            <button type="button" id="btnIncrementar" class="btn btn-outline btn-sm" title="Aumentar en 1">+1</button>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="chkAutoIncrement" checked />
+            <span>Incrementar automáticamente al descargar PDF</span>
+          </label>
+        </div>
+
+        <!-- Nombres y Apellidos -->
+        <div class="form-group">
+          <label for="nombres">Nombres:</label>
+          <input type="text" id="nombres" placeholder="Ej. JUAN CARLOS" autocomplete="off" />
+        </div>
+
+        <div class="form-group">
+          <label for="apellidos">Apellidos:</label>
+          <input type="text" id="apellidos" placeholder="Ej. PÉREZ RODRÍGUEZ" autocomplete="off" />
+        </div>
+
+        <!-- Identificación (SOLO NÚMEROS) -->
+        <div class="form-group">
+          <label for="identificacion">Identificación (Solo Números):</label>
+          <input type="text" id="identificacion" placeholder="Ej. 1025789341" inputmode="numeric" pattern="[0-9]*" maxlength="15" autocomplete="off" />
+          <span class="helper-text warning">⚠️ Solo se admiten números. Se bloquean automáticamente letras y símbolos.</span>
+        </div>
+
+        <!-- Fechas Grid -->
+        <div class="dates-grid">
+          <div class="form-group">
+            <label for="fechaExpedicion">Fecha de Expedición:</label>
+            <input type="date" id="fechaExpedicion" />
+          </div>
+          <div class="form-group">
+            <label for="fechaVencimiento">Fecha de Expiración:</label>
+            <input type="date" id="fechaVencimiento" />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.1rem; display: flex; gap: 0.5rem;">
+          <button type="button" id="btnSumarUnAnio" class="btn btn-outline btn-sm" style="flex: 1;">
+            📅 Fijar Vencimiento a 1 Año (Recomendado)
+          </button>
+        </div>
+
+        <!-- Foto del carnet (Opcional) -->
+        <div class="form-group">
+          <label>Fotografía 3x4 (Opcional):</label>
+          <div class="photo-upload-area" id="photoDropArea">
+            <div id="photoPreviewContainer" style="display: none;">
+              <img id="photoThumb" class="photo-preview-thumb" alt="Vista previa foto" />
+              <div>
+                <button type="button" id="btnQuitarFoto" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: #fca5a5;">
+                  🗑️ Quitar foto
+                </button>
+              </div>
+            </div>
+            <div id="photoPrompt">
+              <span style="font-size: 1.4rem;">📷</span>
+              <p style="font-size: 0.85rem; font-weight: 500; color: #475569;">Arrastra una foto aquí o haz clic para seleccionarla</p>
+              <span class="helper-text">Se ajustará y encuadrará en el recuadro 3x4</span>
+            </div>
+            <input type="file" id="fotoInput" accept="image/*" style="display: none;" />
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-group-primary">
+          <button type="button" id="btnDescargarPdf" class="btn btn-primary">
+            📥 Descargar PDF
+          </button>
+          <button type="button" id="btnImprimir" class="btn btn-secondary">
+            🖨️ Imprimir Carnet
+          </button>
+        </div>
+
+        <button type="button" id="btnLimpiar" class="btn btn-outline btn-full" style="margin-top: 0.65rem;">
+          🔄 Limpiar Formulario
+        </button>
+
+        <!-- Calibración Fina (Colapsable) -->
+        <div class="accordion">
+          <button type="button" class="accordion-toggle" id="btnToggleCalibracion">
+            <span>⚙️ Calibración Fina de Coordenadas (Avanzado)</span>
+            <span id="calibracionIcon">▼</span>
+          </button>
+          <div class="accordion-content" id="calibracionContent">
+            <p class="helper-text" style="margin-bottom: 0.8rem;">
+              Ajusta milimétricamente las posiciones si tu impresora física lo requiere:
+            </p>
+            <div class="calibration-grid">
+              <div>
+                <label>Desplazamiento X (px):</label>
+                <input type="number" id="calibOffsetX" value="0" step="1" />
+              </div>
+              <div>
+                <label>Desplazamiento Y (px):</label>
+                <input type="number" id="calibOffsetY" value="0" step="1" />
+              </div>
+              <div>
+                <label>Tamaño Texto Nombres:</label>
+                <input type="number" id="calibFontSizeNombres" value="44" step="1" min="18" max="54" />
+              </div>
+              <div>
+                <label>Tamaño Consecutivo:</label>
+                <input type="number" id="calibFontSizeNo" value="46" step="1" min="20" max="60" />
+              </div>
+            </div>
+            <button type="button" id="btnRestablecerCalib" class="btn btn-outline btn-sm btn-full" style="margin-top: 0.75rem;">
+              Restablecer valores predeterminados
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: Emisión por Lotes -->
+      <section id="tab-lotes" class="tab-pane" style="display: none;">
+        <p style="font-size: 0.85rem; color: #475569; margin-bottom: 0.75rem;">
+          Pega o escribe varias personas (una por línea) para generar múltiples carnets consecutivos en bloque:
+        </p>
+        <div class="form-group">
+          <label>Formato: Nombres, Apellidos, Identificación</label>
+          <textarea id="lotesInput" rows="7" placeholder="ANDRES FELIPE, GOMEZ MARTINEZ, 1025789341&#10;MARIA CAMILA, TORRES LOPEZ, 1018456123&#10;CARLOS EDUARDO, RAMIREZ ROJAS, 79845123"></textarea>
+          <span class="helper-text warning">⚠️ La identificación solo debe contener números.</span>
+        </div>
+        <div class="form-group">
+          <label for="lotesConsecutivoInicio">Consecutivo inicial:</label>
+          <input type="text" id="lotesConsecutivoInicio" placeholder="000126" />
+        </div>
+        <div class="btn-group-primary">
+          <button type="button" id="btnProcesarLote" class="btn btn-primary btn-full">
+            📑 Generar PDF Combinado del Lote
+          </button>
+        </div>
+        <div id="lotesStatus" style="margin-top: 0.75rem; font-size: 0.85rem; font-weight: 600; color: var(--primary);"></div>
+      </section>
+
+      <!-- TAB 3: Historial -->
+      <section id="tab-historial" class="tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Últimos carnets generados:</span>
+          <button type="button" id="btnBorrarHistorial" class="btn btn-outline btn-sm" style="color: var(--danger);">
+            Vaciar Historial
+          </button>
+        </div>
+        <div style="max-height: 400px; overflow-y: auto;">
+          <table class="data-table" id="tablaHistorial">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="historialBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right Column: Live Preview -->
+    <div class="preview-container">
+      <div class="preview-toolbar">
+        <div class="preview-toolbar-title">
+          <span>📄</span>
+          <span>Vista Previa en Tiempo Real (Resolución A4)</span>
+        </div>
+        <div class="preview-tools">
+          <button type="button" id="btnZoomOut" class="btn btn-outline btn-sm" title="Reducir">🔍-</button>
+          <span id="zoomLevel" style="font-size: 0.8rem; font-weight: 600; min-width: 45px; text-align: center;">Ajustar</span>
+          <button type="button" id="btnZoomIn" class="btn btn-outline btn-sm" title="Aumentar">🔍+</button>
+          <button type="button" id="btnZoomFit" class="btn btn-outline btn-sm" title="Ajustar al espacio">Ajustar</button>
+        </div>
+      </div>
+
+      <div class="preview-viewport" id="previewViewport">
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="carnetCanvas" width="1440" height="1800"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Mensaje</span>
+  </div>
+
+  <!-- Scripts: 100% locales y offline -->
+  <script src="carnet_base_data.js"></script>
+  <script src="pdf-lib.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
